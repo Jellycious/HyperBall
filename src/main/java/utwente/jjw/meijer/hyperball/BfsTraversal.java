@@ -1,5 +1,6 @@
 package utwente.jjw.meijer.hyperball;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -14,6 +15,9 @@ public class BfsTraversal
 
     public BfsTraversal(ImmutableGraph graph)
     {
+        if (!graph.randomAccess()){
+            throw new InvalidParameterException("Graph must have random-access enabled");
+        }
         this.graph = graph;
     }
 
@@ -54,12 +58,8 @@ public class BfsTraversal
 
 
     public static void main(String[] args) {
-        ImmutableGraph graph = Graphs.getCompleteGraph(5);
+        ImmutableGraph graph = Graphs.getWordAssociation2011Graph();
         BfsTraversal bfs = new BfsTraversal(graph);
-        try {
-            System.out.println(bfs.getReachableNodes(0));
-        } catch (UnsupportedOperationException e){
-            e.printStackTrace();
-        }
+        bfs.getReachableNodes(0);
     }
 }

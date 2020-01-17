@@ -2,8 +2,12 @@ package utwente.jjw.meijer.hyperball;
 
 import java.io.IOException;
 
+import it.unimi.dsi.webgraph.ArrayListMutableGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
+import it.unimi.dsi.webgraph.ImmutableSequentialGraph;
+import it.unimi.dsi.webgraph.LazyIntIterator;
+import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.examples.ErdosRenyiGraph;
 
 
@@ -16,9 +20,9 @@ public class Graphs{
      * @param p probability of edge forming
      * @return  Erdos-Renyi graph as ImmutableGraph
      */
-    public static ImmutableGraph getErdosRenyiGraph(int n, double p)
+    public static ErdosRenyiGraph getErdosRenyiGraph(int n, double p)
     {
-        ImmutableGraph graph = new ErdosRenyiGraph(n, p);
+        ErdosRenyiGraph graph = new ErdosRenyiGraph(n, p);
         return graph;
     }
 
@@ -27,9 +31,9 @@ public class Graphs{
      * @param n Number of nodes
      * @return Complete Graph as ImmutableGraph
      */
-    public static ImmutableGraph getCompleteGraph(int n)
+    public static ImmutableSequentialGraph getCompleteGraph(int n)
     {
-        ImmutableGraph graph = new ErdosRenyiGraph(n, 1.0);
+        ImmutableSequentialGraph graph = new ErdosRenyiGraph(n, 1.0);
         return graph;
     }
 
@@ -64,11 +68,16 @@ public class Graphs{
         BVGraph.main(args);
     }
 
-    
-    public static ImmutableGraph getWordAssociation2011Graph(){
-        ImmutableGraph graph;
+    public static BVGraph loadBVGraphFromFile(String filepath) throws IOException 
+    {
+        BVGraph graph = BVGraph.load(filepath);
+        return graph;
+    }
+
+    public static BVGraph getWordAssociation2011Graph(){
+        BVGraph graph;
         try {
-            graph = loadWebGraphFromFile("graphs/wordassociation-2011/wordassociation-2011");
+            graph = loadBVGraphFromFile("graphs/wordassociation-2011/wordassociation-2011");
         } catch (IOException e){
             e.printStackTrace();
             return null;
@@ -83,8 +92,16 @@ public class Graphs{
      */
     public static void main(String[] args)
     {
-        ImmutableGraph graph = getWordAssociation2011Graph();
-        System.out.print(graph);
+        ErdosRenyiGraph graph = new ErdosRenyiGraph(5, 1);
+        ArrayListMutableGraph mutGraph = new ArrayListMutableGraph(graph);
+        ImmutableGraph immutableView = mutGraph.immutableView();
+
+        LazyIntIterator iter = immutableView.successors(0);
+        int n;
+        while ((n = iter.nextInt()) != -1){
+            System.out.println(n);
+        }
+      
     }
 
 
