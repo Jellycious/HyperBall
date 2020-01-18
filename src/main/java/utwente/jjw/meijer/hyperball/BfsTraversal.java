@@ -60,6 +60,9 @@ public class BfsTraversal
     public static void main(String[] args) {
         ImmutableGraph graph = Graphs.getWordAssociation2011Graph();
         BfsTraversal bfs = new BfsTraversal(graph);
-        bfs.getReachableNodes(0);
+        // Time getReachableNodes function.
+        Integer[] reachableNodes = bfs.getReachableNodes(1);
+
+        System.out.println(reachableNodes.length);
     }
 }

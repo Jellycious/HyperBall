@@ -5,9 +5,7 @@ import java.io.IOException;
 import it.unimi.dsi.webgraph.ArrayListMutableGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.ImmutableSequentialGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
-import it.unimi.dsi.webgraph.NodeIterator;
 import it.unimi.dsi.webgraph.examples.ErdosRenyiGraph;
 
 
@@ -20,10 +18,12 @@ public class Graphs{
      * @param p probability of edge forming
      * @return  Erdos-Renyi graph as ImmutableGraph
      */
-    public static ErdosRenyiGraph getErdosRenyiGraph(int n, double p)
+    public static ImmutableGraph getErdosRenyiGraph(int n, double p)
     {
         ErdosRenyiGraph graph = new ErdosRenyiGraph(n, p);
-        return graph;
+        ArrayListMutableGraph mutGraph = new ArrayListMutableGraph(graph);
+        ImmutableGraph g = mutGraph.immutableView();
+        return g;
     }
 
     /**
@@ -31,10 +31,11 @@ public class Graphs{
      * @param n Number of nodes
      * @return Complete Graph as ImmutableGraph
      */
-    public static ImmutableSequentialGraph getCompleteGraph(int n)
+    public static ImmutableGraph getCompleteGraph(int n)
     {
-        ImmutableSequentialGraph graph = new ErdosRenyiGraph(n, 1.0);
-        return graph;
+        ArrayListMutableGraph graph = new ArrayListMutableGraph(getErdosRenyiGraph(n, 1.0));
+        ImmutableGraph g = graph.immutableView();
+        return g;
     }
 
     /**
