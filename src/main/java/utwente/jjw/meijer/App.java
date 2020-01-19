@@ -8,6 +8,7 @@ import utwente.jjw.meijer.hll.HLLCounter;
  */
 public class App 
 {
+    
     public static void main( String[] args )
     {
         int numberOfBits = 6;

@@ -86,6 +86,17 @@ public class Graphs{
         return graph;
     }
 
+    public static BVGraph GetDPLB2010Graph(){
+        BVGraph graph;
+        try {
+            graph = loadBVGraphFromFile("graphs/dblp-2010/dblp-2010");
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+        return graph;
+    }
+
 
     /**
      * QUICK DIRTY TESTING
@@ -93,16 +104,13 @@ public class Graphs{
      */
     public static void main(String[] args)
     {
-        ErdosRenyiGraph graph = new ErdosRenyiGraph(5, 1);
-        ArrayListMutableGraph mutGraph = new ArrayListMutableGraph(graph);
-        ImmutableGraph immutableView = mutGraph.immutableView();
-
-        LazyIntIterator iter = immutableView.successors(0);
+        ImmutableGraph graph = GetDPLB2010Graph();
+        LazyIntIterator iter = graph.successors(2);
+        
         int n;
-        while ((n = iter.nextInt()) != -1){
+        while((n = iter.nextInt()) != -1){
             System.out.println(n);
         }
-      
     }
 
 

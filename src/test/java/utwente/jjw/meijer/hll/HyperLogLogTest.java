@@ -24,5 +24,7 @@ public class HyperLogLogTest {
         testCounter.add(testHash);
 
         assertEquals(6, testCounter.getRegister(9)); // test leading zeroes is equal to 5+1.
+
+        
     }
 }

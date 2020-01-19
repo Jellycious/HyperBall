@@ -29,11 +29,22 @@ public class HLLCounter {
         this.counter = new byte[p]; // initialize byte array.
     }
 
-    public void add(long hash){
+    /**
+     * Adds a new hash to the counter. 
+     * @param hash
+     * @return Whether the counter has changed.
+     */
+    public boolean add(long hash){
         int index = getRegisterIndex(hash);
         int leadingzeroes = getLeadingZeroes(hash);
         byte val = (byte) (leadingzeroes + 1);
-        this.counter[index] = (byte) Math.max(this.counter[index], val);
+        if (val > this.counter[index]){
+
+            this.counter[index] = val;
+            return true;
+        }
+
+        return false;
     }
     
     /**
@@ -164,14 +175,22 @@ public class HLLCounter {
      * Makes a union of two counters. 
      * NOTE: This changes this counter and does not change the argument counter.
      * @param other The HLLCounter to union with.
-     * @return This HLLCounter, which has been unioned with other. 
+     * @return Whether this counter has been changed.
      */
-    public HLLCounter union(HLLCounter other)
+    public boolean union(HLLCounter other)
     {
+        boolean changed = false;
+
         for (int i = 0; i < counter.length; i++){
-            counter[i] = (byte) Math.max(counter[i], other.getRegister(i));
+            byte otherVal = other.getRegister(i);
+            byte val = this.counter[i];
+            if (otherVal > val){
+                this.counter[i] = otherVal;
+                changed = true;
+            }
         }
-        return this;
+
+        return changed;
     }
 
 
