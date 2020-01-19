@@ -5,7 +5,6 @@ import java.io.IOException;
 import it.unimi.dsi.webgraph.ArrayListMutableGraph;
 import it.unimi.dsi.webgraph.BVGraph;
 import it.unimi.dsi.webgraph.ImmutableGraph;
-import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.examples.ErdosRenyiGraph;
 
 
@@ -104,13 +103,7 @@ public class Graphs{
      */
     public static void main(String[] args)
     {
-        ImmutableGraph graph = GetDPLB2010Graph();
-        LazyIntIterator iter = graph.successors(2);
-        
-        int n;
-        while((n = iter.nextInt()) != -1){
-            System.out.println(n);
-        }
+        return;
     }
 
 

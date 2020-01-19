@@ -103,8 +103,6 @@ public class HLLCounter {
 
         //calculate scale of the reciprocal, this is equal to log10(2^p)
         int maxScale = (int) (Math.log10(Math.pow(2, getP())) + 4); // add 4 to stay safe.
-        System.out.printf("Max scale of bigdecimal: %d\n", maxScale);
-
 
         BigDecimal registersum = new BigDecimal(0);
         BigDecimal one = new BigDecimal(1);
