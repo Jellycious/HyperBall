@@ -35,10 +35,9 @@ public class DistanceDistribution implements Serializable {
      *
      */
     private static final long serialVersionUID = 1L;
-    
+
     // Hashmap that keeps track of the number of pairs associated with a distance.
     private final HashMap<Integer, Long> distributionMap; // key = distance, value = number of pairs 
-    private final String DATA_KEY = "DATA:\n"; // Signifies start of data at text file.
     
     public DistanceDistribution()
     {
@@ -194,6 +193,12 @@ public class DistanceDistribution implements Serializable {
         outputStream.close();
     } 
     
+    /**
+     * Deserializes a file containing and DistanceDistribution object
+     * @param file File that contains DistanceDistributon object.
+     * @return  DistanceDistribution contained within the file.
+     * @throws IOException
+     */
     public static DistanceDistribution loadFromDisk(File file) throws IOException
     {
         FileInputStream inputStream = new FileInputStream(file);
@@ -223,20 +228,19 @@ public class DistanceDistribution implements Serializable {
      * @param dist      distribution to save
      * @throws IOException
      */
-    public static void createDistanceDistributionImage(String filename, DistanceDistribution dist) throws IOException {
+    public static void saveDistanceDistributionImage(File file, DistanceDistribution dist) throws IOException {
         JFreeChart chart = dist.getChart();
         BufferedImage img = chart.createBufferedImage(1000, 1000);
-        File file = new File(filename);
         ImageIO.write(img, "png", file);
     }   
 
 
     public static void main(String[] args){
+        File file = new File("results/completegraph-1000/completegraph-1000-bfs.dd");
         try {
-            File file = new File("results/wordassocation-hyperball.dd");
-            DistanceDistribution dist = loadFromDisk(file);
+            DistanceDistribution dist = DistanceDistribution.loadFromDisk(file);
             dist.printDistribution();
-        } catch (IOException e){
+        } catch (Exception e){
             e.printStackTrace();
         }
     }

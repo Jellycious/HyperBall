@@ -1,6 +1,5 @@
 package utwente.jjw.meijer.hyperball;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
 
 import it.unimi.dsi.webgraph.ImmutableGraph;
@@ -18,7 +17,7 @@ public class HyperBall {
     private final ImmutableGraph GRAPH;
     private final int NUMBER_OF_BITS;
     
-    /**
+     /**
      * Creates a wrapper for the HyperBall algorithm.
      * @param graph The graph to analyse
      * @param numberOfBits The number of registers. More results in better accuracy.
@@ -33,6 +32,7 @@ public class HyperBall {
         this.NUMBER_OF_BITS = numberOfBits;
         this.GRAPH = graph;  
     }
+
 
     /**
      * Get the approximate distance distribution calculated by the HyperBall algorithm.
@@ -103,36 +103,5 @@ public class HyperBall {
         return counters;
     }
 
-    /**
-     * Analyze a graph and save its distance distribution as an image.
-     * @param graph The graph to analyze.
-     */
-    public static void analyzeGraph(ImmutableGraph graph){
-        HyperBall hyperBall = new HyperBall(graph, 5); // 2^5=32 registers per node
-        DistanceDistribution dist = hyperBall.getDistanceDistribution();
-
-        //Get graph name. Works only for BVGraphs!
-        String basename = graph.basename().toString();
-        String[] basenamearr = basename.split("/",0);
-        String graphName = basenamearr[basenamearr.length - 1];
-
-        dist.printDistribution(); // Print distribution
-        try {
-            //Try to save the distribution as an image.
-            DistanceDistribution.createDistanceDistributionImage("results/"+graphName+"-hyperball.png", dist);
-        } catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public static void main(String[] args){
-        ImmutableGraph graph = Graphs.getWordAssociation2011Graph();
-        long start = System.currentTimeMillis();
-        analyzeGraph(graph);
-        long end = System.currentTimeMillis();
-        System.out.printf("Time to analyze: %dms\n", end - start);
-    }
 
 }   
