@@ -1,28 +1,32 @@
 package utwente.jjw.meijer;
 
-import utwente.jjw.meijer.hll.HLLCounter;
+import it.unimi.dsi.webgraph.ImmutableGraph;
 
 /**
- * Hello world!
- *
+ * Application that can analyze different graph's distance distributions.
  */
 public class App 
 {
-    
+
+    public static final String RESULTS_FOLDER = "results/";
+    public static final String GRAPHS_FOLDER = "graphs/";
+
+    /**
+     * Analyses a graph using hyperball and optionally bfs. 
+     * It will save the results for later usage
+     * @param graph
+     */
+    public static void analyzeGraphHyperBall(ImmutableGraph graph){
+
+    }
+
+
     public static void main( String[] args )
     {
-        int numberOfBits = 6;
-        int pLong = (int) Math.pow(2, numberOfBits);
-        System.out.printf("Number of registers %d. This is for %d bits\n", pLong, numberOfBits);
-
-        HLLCounter counter = new HLLCounter(numberOfBits);
-        System.out.printf("Counter size %d\n", counter.getNumberOfRegisters());
-
-        long hash = 0b1010100000111111111111111111111111111111111111111111111111111111L; 
-        System.out.printf("Hash: %s\n", HLLCounter.longToBinaryRepresentation(hash));
-
-        System.out.println(counter.getRegisterIndex(hash));
-        System.out.println(counter.getLeadingZeroes(hash));
-
+        boolean a = false;
+        boolean b = true;
+        System.out.println(a);
+        a = a | b;
+        System.out.println(a);
     }
 }

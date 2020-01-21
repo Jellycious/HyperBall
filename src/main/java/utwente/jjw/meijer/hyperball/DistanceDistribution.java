@@ -1,9 +1,22 @@
 package utwente.jjw.meijer.hyperball;
 
+import java.awt.image.BufferedImage;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
 import java.util.HashMap;
 import java.util.Iterator;
+
+import javax.imageio.ImageIO;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -16,11 +29,16 @@ import org.jfree.data.xy.XYSeriesCollection;
  * Provides utility for probability distributions.
  * Allows for things such as displaying plots and such.
  */
-public class DistanceDistribution {
+public class DistanceDistribution implements Serializable {
 
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    
     // Hashmap that keeps track of the number of pairs associated with a distance.
     private final HashMap<Integer, Long> distributionMap; // key = distance, value = number of pairs 
-
+    private final String DATA_KEY = "DATA:\n"; // Signifies start of data at text file.
     
     public DistanceDistribution()
     {
@@ -55,6 +73,35 @@ public class DistanceDistribution {
         }
     }
 
+    /**
+     * Increases the number of pairs by a value increase.
+     * @param distance the distance value to update.
+     * @param increase the amount to increase the number of pairs value by.
+     * @return The newly increased number of pairs.
+     */
+    public long increaseNumberOfPairs(int distance, long increase){
+        Long numberOfPairs = distributionMap.get(distance);
+        if (numberOfPairs != null){
+            numberOfPairs = numberOfPairs + increase;
+            
+            if (numberOfPairs < 0) {
+                System.out.printf("NEGATIVE: increase=%d and numberOfPairs=%d\n", increase, numberOfPairs);
+            }
+
+            distributionMap.put(distance, numberOfPairs);
+            return numberOfPairs;
+        }else {
+            numberOfPairs = (long) increase;
+            distributionMap.put(distance, numberOfPairs);
+            return numberOfPairs;
+        }
+    }
+
+    /**
+     * Returns the number of pairs associated with a distance.
+     * @param distance distance to get
+     * @return The number of pairs associated with :param: distance;
+     */
     public long getValue(int distance)
     {
         if (distributionMap.containsKey(distance)){
@@ -119,6 +166,9 @@ public class DistanceDistribution {
         return chart;
     }
 
+    /**
+     * Prints the distribution to standard System outputstream.
+     */
     public void printDistribution(){
         Iterator<Integer> keys = distributionMap.keySet().iterator();
         System.out.println("Distance Distribution");
@@ -130,18 +180,64 @@ public class DistanceDistribution {
         }
     }
 
+    /**
+     * Saves the distance distribution to the disk
+     * @param file  File to save to
+     * @throws IOException
+     */
+    public static void saveToDisk(File file, DistanceDistribution dist) throws IOException 
+    {
+        FileOutputStream outputStream = new FileOutputStream(file);
+        ObjectOutputStream objectStream = new ObjectOutputStream(outputStream);
+        objectStream.writeObject(dist);
+        objectStream.close();
+        outputStream.close();
+    } 
+    
+    public static DistanceDistribution loadFromDisk(File file) throws IOException
+    {
+        FileInputStream inputStream = new FileInputStream(file);
+        ObjectInputStream objectStream = new ObjectInputStream(inputStream);
+
+        try {
+            DistanceDistribution dist = (DistanceDistribution) objectStream.readObject();
+            return dist;
+
+        } catch (ClassNotFoundException e){
+            e.printStackTrace();
+            System.err.println("File must contain DistanceDistribution Object");
+            return null;
+
+        } finally {
+            
+            objectStream.close();
+            inputStream.close();
+        }
+
+    }
+    
+
+    /**
+     * Returns a plot image of the distance distribution
+     * @param filename  filename to save to
+     * @param dist      distribution to save
+     * @throws IOException
+     */
+    public static void createDistanceDistributionImage(String filename, DistanceDistribution dist) throws IOException {
+        JFreeChart chart = dist.getChart();
+        BufferedImage img = chart.createBufferedImage(1000, 1000);
+        File file = new File(filename);
+        ImageIO.write(img, "png", file);
+    }   
+
 
     public static void main(String[] args){
-        DistanceDistribution dist = new DistanceDistribution();
-        dist.setNumberOfPairs(1, 10);
-        dist.setNumberOfPairs(1, 20);
-        dist.setNumberOfPairs(2, 20);
-        dist.setNumberOfPairs(3, 40);
-        dist.setNumberOfPairs(4, 100);
-        dist.setNumberOfPairs(5, 60);
-        dist.setNumberOfPairs(6, 20);
-        dist.setNumberOfPairs(7, 10);
-        dist.getChart();
-        dist.printDistribution(); 
+        try {
+            File file = new File("results/wordassocation-hyperball.dd");
+            DistanceDistribution dist = loadFromDisk(file);
+            dist.printDistribution();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }   

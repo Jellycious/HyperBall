@@ -3,6 +3,7 @@ package utwente.jjw.meijer.hll;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+
 /**
  * HyperLogLog counter. Used for the HyperBall algorithm. HyperLogLog is capable
  * of counting large cardinalities while keeping its memory space to a minimum.
@@ -15,7 +16,6 @@ public class HLLCounter {
 
     private final byte[] counter; 
     private final int b;
-    private final double a_m; //constant a_m for fixing multiplicative bias. 
 
     /**
      * Constructor: Calculates p from given number of bits. 
@@ -24,17 +24,27 @@ public class HLLCounter {
     public HLLCounter(int b) 
     {
         this.b = b;
-        int p = getP();
-        this.a_m = calculateAm(p); // calculate a_m constant. 
+        int p = (int) Math.pow(2, b); // Number of Registers is equal to 2^bits
         this.counter = new byte[p]; // initialize byte array.
     }
 
     /**
+     * Creates a new counter from another counter.
+     * @param toCopy HLLCounter which you want to copy.
+     */
+    public HLLCounter(HLLCounter toCopy)
+    {
+        this.b = toCopy.b;
+        this.counter = toCopy.counter.clone();
+    }
+
+    /**
      * Adds a new hash to the counter. 
-     * @param hash
+     * @param item item to add to the counter.
      * @return Whether the counter has changed.
      */
-    public boolean add(long hash){
+    public boolean add(int item){
+        int hash = NodeHasher.hash(item);
         int index = getRegisterIndex(hash);
         int leadingzeroes = getLeadingZeroes(hash);
         byte val = (byte) (leadingzeroes + 1);
@@ -45,15 +55,6 @@ public class HLLCounter {
         }
 
         return false;
-    }
-    
-    /**
-     * Returns the value of p, based on the number of bits specified for indexing registers.
-     * According to p=2^b
-     * @return p
-     */
-    private int getP(){
-        return (int) (Math.pow(2, b));
     }
 
     /**
@@ -90,7 +91,7 @@ public class HLLCounter {
      * @return Number of registers.
      */
     public int getNumberOfRegisters(){
-        return getP();
+        return this.counter.length;
     }
 
     /**
@@ -102,7 +103,7 @@ public class HLLCounter {
     {
 
         //calculate scale of the reciprocal, this is equal to log10(2^p)
-        int maxScale = (int) (Math.log10(Math.pow(2, getP())) + 4); // add 4 to stay safe.
+        int maxScale = (int) (Math.log10(Math.pow(2, getNumberOfRegisters())) + 4); // add 4 to stay safe.
 
         BigDecimal registersum = new BigDecimal(0);
         BigDecimal one = new BigDecimal(1);
@@ -128,13 +129,14 @@ public class HLLCounter {
      * Returns the estimated cardinality.
      * @return E the estimated cardinality of the counter. 
      */
-    public long getSize()
+    private double getE()
     {
         BigDecimal Z = getZ();  // Z 
-        System.out.printf("Z: %f\n", Z);
-        BigDecimal a_m = new BigDecimal(this.a_m); // constant: a_m
+        // a_m 
+        double da_m = calculateAm(getNumberOfRegisters());
+        BigDecimal a_m = new BigDecimal(da_m); // constant: a_m
 
-        BigDecimal psqr = new BigDecimal(getP()); // number of registers: p
+        BigDecimal psqr = new BigDecimal(getNumberOfRegisters()); // number of registers: p
         psqr = psqr.pow(2); // p^2
         
         // Calculate a_m * p^2 * Z 
@@ -143,7 +145,40 @@ public class HLLCounter {
         result = result.multiply(psqr);
         result = result.multiply(Z); 
 
-        return result.longValue(); // return as long. 
+        return result.doubleValue(); // return as long. 
+    }
+
+    /** 
+     * Returns the size of the counter. Including corrections on lower and upper bound.
+     * These corrections are explained in discussion of HyperLogLog analysis of near optimal cardinality estimation algorithm. 
+     * @return The size of the register.
+     */
+    public long getSize()
+    {
+        // Lower bound check.
+        double E = getE(); // normal estimator.
+
+        double lowerBound = (5.0 / 2) * getNumberOfRegisters();
+        double upperBound = (1.0 / 30) * (Math.pow(2,32)); 
+        // range corrections
+        if (E < lowerBound){            // Small range correction
+
+            double V = (double) emptyRegisters();
+
+            if (V==0) return (long) E;  // prevents division by 0
+            
+            double m = (double) getNumberOfRegisters();
+            double eStar = m * Math.log(m / V);
+            return (long) eStar;
+
+        } else if (E < upperBound) {    // No range correction        
+            return (long) E;
+
+        } else {                        // Large range correction
+            double maxVal = Math.pow(2,32);
+            double eStar = -1.0 * maxVal * Math.log(1 - (E/maxVal));
+            return (long) eStar;
+        }        
     }
 
 
@@ -152,9 +187,9 @@ public class HLLCounter {
      * @param hash
      * @return Index of register associated with the first bits of the hash.
      */
-    public int getRegisterIndex(long hash)
+    public int getRegisterIndex(int hash)
     {
-        return (int) (hash >>> (64 - b)); //unsigned right shift. 
+        return (int) (hash >>> (32 - b)); //unsigned right shift. 
     }
 
     /**
@@ -162,16 +197,28 @@ public class HLLCounter {
      * @param hash hash to calculate leading zeroes.
      * @return number of leading zeroes.
      */
-    public byte getLeadingZeroes(long hash)
+    public byte getLeadingZeroes(int hash)
     {
-        long importantBits = hash << b; 
-        return (byte) Long.numberOfLeadingZeros(importantBits);
+        int importantBits = hash << b; 
+        return (byte) Integer.numberOfLeadingZeros(importantBits);
+    }
+
+    /**
+     * @return Number of empty registers.
+     */
+    private int emptyRegisters(){
+        int emptyBuckets = 0;
+        for (int i = 0; i < counter.length; i++){
+            if (counter[i]==0) emptyBuckets++;
+        }
+        return emptyBuckets;
     }
 
 
     /**
      * Makes a union of two counters. 
      * NOTE: This changes this counter and does not change the argument counter.
+     * Complexity: O(m)
      * @param other The HLLCounter to union with.
      * @return Whether this counter has been changed.
      */
@@ -193,12 +240,28 @@ public class HLLCounter {
 
 
     /**
-     * Creates a binary representation string from a long, with proper padding.
-     * @param bitmask long to convert to padded binary representation.
+     * Creates a binary representation string from an integer, with proper padding.
+     * @param binary int to convert to padded binary representation.
      * @return String of binary representation.
      */
-    public static String longToBinaryRepresentation(long binary){
-        return String.format("%64s", Long.toBinaryString(binary)).replace(' ', '0');
+    public static String intToBinaryRepresentation(int binary){
+        return String.format("%32s", Integer.toBinaryString(binary)).replace(' ', '0');
+    }
+
+
+
+    public static void main(String[] args){
+        HLLCounter testCounter = new HLLCounter(5);
+        System.out.println(testCounter.getE());
+
+        double lowerBound = (5.0 / 2) * testCounter.getNumberOfRegisters();
+        System.out.printf("lower bound: %f\n", lowerBound);
+        System.out.printf("size: %d\n", testCounter.getSize());
+
+        double V = (double) testCounter.emptyRegisters();
+        double m = (double) testCounter.getNumberOfRegisters();
+        double eStar = m * Math.log(m / V);
+        System.out.printf("V: %f, m: %f, eStar: %f", V, m, eStar);
     }
 }
 
