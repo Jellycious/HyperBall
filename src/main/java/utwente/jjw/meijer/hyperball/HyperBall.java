@@ -7,6 +7,7 @@ import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 
 import utwente.jjw.meijer.hll.HLLCounter;
+import utwente.jjw.meijer.utilities.*;
 
 /**
  * The hyperball algorithm. Used to compute the distance distribution of big graphs. Using probabilistic counters.
@@ -47,6 +48,7 @@ public class HyperBall {
 
         int t = 0; // distance
         boolean countersChanged = true;
+
         while (countersChanged){
             countersChanged = false;    // should change to true if the counters indeed have changed
             NodeIterator nodeIter = GRAPH.nodeIterator();
@@ -74,7 +76,8 @@ public class HyperBall {
 
                 //  Write result to disk. This would half the memory usage. TODO
             }
-
+            // Most Memory in use at this moment.
+            Utilities.printMemoryUsage();
             counters = newCounters;     // replace the old counters with the new counters
             t = t + 1;                  // update distance
 
@@ -102,6 +105,5 @@ public class HyperBall {
         
         return counters;
     }
-
 
 }   

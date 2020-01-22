@@ -49,11 +49,6 @@ public class DistanceDistribution implements Serializable {
         distributionMap.put(distance, numberOfPairs.longValue());
     }
     
-
-    public long getNumberOfPairs(int distance){
-        return distributionMap.get(distance);
-    }
-
     /**
      * Increments the number of pairs
      * @param distance Associated distance.
@@ -124,6 +119,14 @@ public class DistanceDistribution implements Serializable {
         }
 
         return total;
+    }
+
+    /**
+     * Returns an iterator allowing to iterate over the distances.
+     * @return Iterator.
+     */
+    public Iterator<Integer> iterator(){
+        return distributionMap.keySet().iterator();
     }
 
     /**

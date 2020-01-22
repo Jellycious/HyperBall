@@ -13,41 +13,56 @@ import utwente.jjw.meijer.hyperball.HyperBall;
 /**
  * Application that can analyze different graph's distance distributions.
  */
-public class App 
+public class GraphAnalyzer 
 {
 
-    public static final String RESULTS_FOLDER = "results" + File.separator;
-    public static final String GRAPHS_FOLDER = "graphs" + File.separator;
+    public static final String RESUTLS_DIRECTORY = "results" + File.separator;
+    public static final String GRAPHS_DIRECTORY = "graphs" + File.separator;
     
+    
+    public static final String BFS_KEY = "bfs";
+    public static final String HYPERBALL_KEY = "hyperball";
+
+
+
     public static final int NUMBER_OF_BITS_HYPERBALL = 5; // Number of bits to use for register indexing in the hyperball algorithm.
 
+
+    /**
+     * Analyze a BVGraph with the HyperBall algorithm. 
+     * Will store the results in the appropriate folder. 
+     * @param graph Graph to analyze.
+     */
     public static void analyzeGraphWithHyperball(BVGraph graph)
     {
         String baseName = Graphs.getBasename(graph);
-        String filePath = baseName + File.separator + baseName;
-        analyzeGraphWithHyperball(graph, filePath);
+        String resultsFolder = baseName + File.separator;
+        analyzeGraphWithHyperball(graph, resultsFolder);
     }
+
+
     /**
      * Analyzes a graph using the HyperBall algorithm. An appendix will be added to the filepath to indicate the algorithm used to obtain the results.
      * @param graph The graph to analyze 
      * @param filePath The filepath to store the results. For example: 'graphfolder/graphname'
      */
-    public static void analyzeGraphWithHyperball(ImmutableGraph graph, String filePath)
+    public static void analyzeGraphWithHyperball(ImmutableGraph graph, String resultsFolder)
     {
-        final String FILE_APPENDIX = "-hyperball";
+        final String FILE_NAME = HYPERBALL_KEY;
 
         HyperBall ball = new HyperBall(graph, NUMBER_OF_BITS_HYPERBALL);
 
-        System.out.printf("Analyzing graph: %s with HyperBall\n", filePath);
+        System.out.printf("Analyzing graph: %s with HyperBall\n", resultsFolder);
         long start = System.currentTimeMillis();
         DistanceDistribution dist = ball.getDistanceDistribution();
         long end = System.currentTimeMillis();
         System.out.printf("Analysis Done\nTime taken: %dms\n", end - start);
         System.out.println("Saving results to disk\n");
 
-        filePath = RESULTS_FOLDER + filePath + FILE_APPENDIX;
+        String filePath = RESUTLS_DIRECTORY + resultsFolder + File.separator + FILE_NAME;
         saveDistanceDistributionAnalysis(dist, filePath);
     }
+
 
     /**
      * Analysses a BVGraph using BFS-Traversal. The names are automatically obtained from the graph.
@@ -55,9 +70,9 @@ public class App
      */
     public static void analyzeGraphWithBFS(BVGraph graph)
     {
-        String basename = Graphs.getBasename(graph);
-        String filePath = basename + File.separator + basename;
-        analyzeGraphWithBFS(graph, filePath);
+        String baseName = Graphs.getBasename(graph);
+        String resultsFolder = baseName + File.separator;
+        analyzeGraphWithBFS(graph, resultsFolder);
     }
 
 
@@ -66,13 +81,13 @@ public class App
      * @param graph The graph to analyze
      * @param filePath The filepath to store the analysis results. For example: 'graphfolder/graphname'
      */
-    public static void analyzeGraphWithBFS(ImmutableGraph graph, String filePath)
+    public static void analyzeGraphWithBFS(ImmutableGraph graph, String resultsFolder)
     {
-        final String FILE_APPENDIX = "-bfs";
+        final String FILE_NAME = BFS_KEY;
 
         BfsTraversal bfs = new BfsTraversal(graph);
 
-        System.out.printf("Analyzing graph: %s with Breadth First Traversal\n", filePath);
+        System.out.printf("Analyzing graph: %s with Breadth First Traversal\n", resultsFolder);
         long start = System.currentTimeMillis();
         DistanceDistribution dist = bfs.getDistanceDistribution();
         long end = System.currentTimeMillis();
@@ -80,11 +95,9 @@ public class App
         System.out.printf("Analysis Done\nTime taken: %dms\n", end - start);
         System.out.println("Saving results to disk\n");
 
-        filePath = RESULTS_FOLDER + filePath + FILE_APPENDIX;
+        String filePath = RESUTLS_DIRECTORY + resultsFolder + File.separator + FILE_NAME;
         saveDistanceDistributionAnalysis(dist, filePath);
     }
-
-
 
 
     /**
@@ -117,6 +130,9 @@ public class App
 
     public static void main( String[] args )
     {
-        analyzeGraphWithBFS(Graphs.getWordAssociation2011Graph());
+        ImmutableGraph graph = Graphs.getErdosRenyiGraph(10000, 0.8);
+        System.out.println("Analyzing with BFS");
+        analyzeGraphWithBFS(graph, "erdosrenyi-10000-80");
+        analyzeGraphWithHyperball(graph, "erdosrenyi-10000-80");
     }
 }

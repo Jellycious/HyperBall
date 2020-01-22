@@ -15,6 +15,8 @@ import it.unimi.dsi.webgraph.ImmutableGraph;
 import it.unimi.dsi.webgraph.LazyIntIterator;
 import it.unimi.dsi.webgraph.NodeIterator;
 
+import utwente.jjw.meijer.utilities.*;
+
 /**
  * Class for performing bfs traversal on graphs to get the distance distribution.
  * Its complexity is (n^2). Too inneficient to do graphs much larger than 10.000
@@ -72,10 +74,22 @@ public class BfsTraversal
         NodeIterator nodeIter = graph.nodeIterator();
         DistanceDistribution distribution = new DistanceDistribution();
 
+        Progress progress = new Progress();
+        ProgressReporter reporter = new ProgressReporter(progress, 5, true);
+        reporter.start();
+
+        int numNodes = graph.numNodes();
+
         while (nodeIter.hasNext()){
             int node = nodeIter.nextInt();
             updateDistanceDistribution(distribution, node);
+
+            double progressStatus = ((double) node / numNodes) * 100;
+            progress.updateProgress(progressStatus);
+
         }
+
+        reporter.finished();
         return distribution;
     }
 
@@ -115,7 +129,10 @@ public class BfsTraversal
                     distribution.incrementNumberOfPairs(distance);
                 }
             }
+
         }
+        //Utilities.printMemoryUsage();
+
     }
 
     // HELPER CLASS 
