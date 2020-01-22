@@ -26,6 +26,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
+import it.unimi.dsi.fastutil.Hash;
+
 /**
  * ProbabilityDistribution Class
  * Provides utility for probability distributions.
@@ -112,15 +114,7 @@ public class DistanceDistribution implements Serializable {
      * @return NumberOfPairs that are able to reach each other.
      */
     public long getTotal(){
-        long total = 0;
-        Iterator<Long> iter = distributionMap.values().iterator();
-
-        while (iter.hasNext()){
-            long numberOfPairs = (long) iter.next();
-            total = total + numberOfPairs;
-        }
-
-        return total;
+        return distributionMap.values().stream().reduce(0L, Long::sum);
     }
 
     /**
@@ -130,6 +124,27 @@ public class DistanceDistribution implements Serializable {
     public Iterator<Integer> iterator(){
         return distributionMap.keySet().iterator();
     }
+
+    /**
+     * Calculates the probability mass function of the distance distribution.
+     * @return probability mass map
+     */
+    public HashMap<Integer, Double> getProbabilityMass()
+    {
+        HashMap<Integer, Double> massMap = new HashMap<>();
+        BigDecimal total = new BigDecimal(getTotal());
+
+        Iterator<Integer> keyIter = iterator();
+        while (keyIter.hasNext()){
+            int key = keyIter.next();
+            BigDecimal numberOfPairs = new BigDecimal(getValue(key));
+            numberOfPairs = numberOfPairs.divide(total, 10, RoundingMode.HALF_UP);
+            massMap.put(key, numberOfPairs.doubleValue());
+        }
+
+        return massMap;
+    }
+
 
     /**
      * Retuns a chart that shows the distance distribution as percentages.
@@ -169,6 +184,7 @@ public class DistanceDistribution implements Serializable {
 
         return chart;
     }
+
 
     public JFreeChart getBarChart()
     {
@@ -277,12 +293,23 @@ public class DistanceDistribution implements Serializable {
 
 
     public static void main(String[] args){
-        File file = new File("results/completegraph-1000/completegraph-1000-bfs.dd");
-        try {
-            DistanceDistribution dist = DistanceDistribution.loadFromDisk(file);
-            dist.printDistribution();
-        } catch (Exception e){
-            e.printStackTrace();
+        DistanceDistribution dist = new DistanceDistribution();
+        dist.setNumberOfPairs(1, 10);
+        dist.setNumberOfPairs(2, 20);
+        dist.setNumberOfPairs(3, 40);
+        dist.setNumberOfPairs(4, 70);
+        dist.setNumberOfPairs(5, 50);
+        dist.setNumberOfPairs(6, 20);
+        
+        HashMap<Integer, Double> mass = dist.getProbabilityMass();
+
+        Iterator<Integer> keyIter = mass.keySet().iterator();
+        while(keyIter.hasNext()){
+            int key = keyIter.next();
+            System.out.printf("key: %d, value: %f\n", key, mass.get(key));
         }
+
+        double total = mass.values().stream().reduce(0.0, (x,y) -> x+y);
+        System.out.println(Math.round(total));
     }
 }   
