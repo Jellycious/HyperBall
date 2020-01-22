@@ -21,6 +21,8 @@ import javax.imageio.ImageIO;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -168,6 +170,30 @@ public class DistanceDistribution implements Serializable {
         return chart;
     }
 
+    public JFreeChart getBarChart()
+    {
+        final DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        
+        Iterator<Integer> keyIter = distributionMap.keySet().iterator();
+        final String ROWKEY = "Distance";
+
+        while(keyIter.hasNext()){
+            int key = keyIter.next();
+            long numberOfPairs = distributionMap.get(key);
+            dataset.addValue((Number) numberOfPairs, ROWKEY, key);
+        }
+
+        JFreeChart barChart = ChartFactory.createBarChart(
+            "Distance Distribution", 
+            "Distance", 
+            "Number of Pairs", 
+            dataset, 
+            PlotOrientation.VERTICAL,
+            true, true, false);
+
+        return barChart;
+    }
+
     /**
      * Prints the distribution to standard System outputstream.
      */
@@ -236,6 +262,18 @@ public class DistanceDistribution implements Serializable {
         BufferedImage img = chart.createBufferedImage(1000, 1000);
         ImageIO.write(img, "png", file);
     }   
+
+    /**
+     * Saves the distribution as a barchart image.
+     * @param file
+     * @param dist
+     * @throws IOException
+     */
+    public static void saveDistanceDistributionImageBar(File file, DistanceDistribution dist) throws IOException {
+        JFreeChart chart = dist.getBarChart();
+        BufferedImage img = chart.createBufferedImage(1000, 1000);
+        ImageIO.write(img, "png", file);
+    }
 
 
     public static void main(String[] args){

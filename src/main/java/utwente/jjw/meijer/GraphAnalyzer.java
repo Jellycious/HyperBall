@@ -9,6 +9,7 @@ import utwente.jjw.meijer.hyperball.BfsTraversal;
 import utwente.jjw.meijer.hyperball.DistanceDistribution;
 import utwente.jjw.meijer.hyperball.Graphs;
 import utwente.jjw.meijer.hyperball.HyperBall;
+import utwente.jjw.meijer.utilities.Utilities;
 
 /**
  * Application that can analyze different graph's distance distributions.
@@ -112,12 +113,14 @@ public class GraphAnalyzer
 
             File ddFile = new File(filepath + ".dd");           // distance distribution file         
             File imgFile = new File(filepath + ".png");         // distance distribution image
+            File barImgFile = new File(filepath + "-bar.png");
             //  create directory if it does not exist.
             if (!ddFile.getParentFile().exists()) ddFile.getParentFile().mkdirs();
 
 
             DistanceDistribution.saveToDisk(ddFile, dist);                        //  save distance distribution to disk.
             DistanceDistribution.saveDistanceDistributionImage(imgFile, dist);
+            DistanceDistribution.saveDistanceDistributionImageBar(barImgFile, dist);
 
         } catch (IOException e) {
 
@@ -130,9 +133,7 @@ public class GraphAnalyzer
 
     public static void main( String[] args )
     {
-        ImmutableGraph graph = Graphs.getErdosRenyiGraph(10000, 0.8);
-        System.out.println("Analyzing with BFS");
-        analyzeGraphWithBFS(graph, "erdosrenyi-10000-80");
-        analyzeGraphWithHyperball(graph, "erdosrenyi-10000-80");
+        BVGraph graph = Graphs.getHollywood2009Graph();
+        analyzeGraphWithHyperball(graph);
     }
 }
