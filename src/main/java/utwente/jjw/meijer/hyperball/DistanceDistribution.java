@@ -21,12 +21,10 @@ import javax.imageio.ImageIO;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
-import it.unimi.dsi.fastutil.Hash;
 
 /**
  * ProbabilityDistribution Class
@@ -145,35 +143,68 @@ public class DistanceDistribution implements Serializable {
         return massMap;
     }
 
+    /**
+     * Calculates the sample mean for discrete random variable.
+     * @return The mean of the distance distribution.
+     */
+    public double getMean(){
+        double mean = 0;
 
+        HashMap<Integer, Double> probMap = getProbabilityMass();
+        Iterator<Integer> keyIter = probMap.keySet().iterator();
+        // calculate the sum of all distances.
+        while(keyIter.hasNext()){       
+            int distance = keyIter.next();
+            mean = mean + distance * probMap.get(distance);
+        }
+        return mean;
+    }
+
+    /**
+     * Calculates the variance of a discrete random variable.
+     * @return The variance of the distance distribution.
+     */
+    public double getVariance(){
+        double variance = 0;
+        double mean = getMean();
+
+        HashMap<Integer, Double> probMap = getProbabilityMass();
+        Iterator<Integer> keyIter = probMap.keySet().iterator();
+
+        while (keyIter.hasNext()){
+            int distance = keyIter.next();
+            double probability = probMap.get(distance);
+            variance = variance + (probability * Math.pow(distance, 2));
+        }
+        variance = variance - Math.pow(mean, 2);
+        return variance;
+    }
+
+    public double getSpid(){
+        return getVariance() / getMean();
+    }
+
+    
     /**
      * Retuns a chart that shows the distance distribution as percentages.
      * @return The Chart
      */
-    public JFreeChart getChart(){
-    
-        BigDecimal bigsum = new BigDecimal(getTotal());
-        
+    public JFreeChart getChart(){        
 
         // add data to dataset.
         XYSeriesCollection dataset = new XYSeriesCollection();
         XYSeries serie = new XYSeries("N");
-        Iterator<Integer> keysIter = distributionMap.keySet().iterator();
 
-        while (keysIter.hasNext()){
-
-            Integer key = keysIter.next();
-
-            BigDecimal numberOfPairs = new BigDecimal(distributionMap.get(key));
-            // normalize the number of pairs.
-            numberOfPairs = numberOfPairs.divide(bigsum, 5, RoundingMode.HALF_UP);
-
-            serie.add((double) key, numberOfPairs.doubleValue());
-
+        HashMap<Integer, Double> probMass = getProbabilityMass();
+        Iterator<Integer> keyIter = probMass.keySet().iterator();
+        while (keyIter.hasNext()){
+            int key = keyIter.next();
+            serie.add(key, probMass.get(key).doubleValue());;
         }
 
         dataset.addSeries(serie);
 
+        // create chart
         JFreeChart chart = ChartFactory.createXYLineChart(
             "Distance Distribution", 
             "Distance", 
@@ -292,6 +323,16 @@ public class DistanceDistribution implements Serializable {
     }
 
 
+
+
+
+
+
+
+    /**
+     * TESTING ONLY
+     * @param args
+     */
     public static void main(String[] args){
         DistanceDistribution dist = new DistanceDistribution();
         dist.setNumberOfPairs(1, 10);

@@ -17,7 +17,7 @@ public class HyperBall {
 
     private final ImmutableGraph GRAPH;
     private final int NUMBER_OF_BITS;
-    
+    private final int MAX_ITERATIONS = 30;
      /**
      * Creates a wrapper for the HyperBall algorithm.
      * @param graph The graph to analyse
@@ -53,7 +53,7 @@ public class HyperBall {
             countersChanged = false;    // should change to true if the counters indeed have changed
             NodeIterator nodeIter = GRAPH.nodeIterator();
             HLLCounter[] newCounters = new HLLCounter[GRAPH.numNodes()];
-
+            long start = System.currentTimeMillis();
             // iterate over all graph nodes.
             while (nodeIter.hasNext()){
                 int node = nodeIter.nextInt();
@@ -80,7 +80,10 @@ public class HyperBall {
             Utilities.printMemoryUsage();
             counters = newCounters;     // replace the old counters with the new counters
             t = t + 1;                  // update distance
-
+            long interval = System.currentTimeMillis() - start;
+            double minutes = (double) interval / 1000.0 / 60.0;
+            System.out.printf("Iteration T: %d, Iteration took: %f minutes\n", t, minutes);
+            if (t > MAX_ITERATIONS) break; // Premature Termination. NOT RECOMMENDED!
         }
 
         return dist;

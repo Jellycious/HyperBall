@@ -93,12 +93,33 @@ public class Graphs {
         return graph;
     }
 
-    public static BVGraph getHollywood2009Graph()
-    {
+    public static BVGraph getHollywood2009Graph() {
         BVGraph graph;
         try {
             graph = loadBVGraphFromFile("graphs/hollywood-2009/hollywood-2009");
-        } catch (IOException e){
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return graph;
+    }
+
+    public static BVGraph getEu2015Host() {
+        BVGraph graph;
+        try {
+            graph = loadBVGraphFromFile("graphs/eu-2015-host/eu-2015-host");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return graph;
+    }
+
+    public static BVGraph getUk2014Host() {
+        BVGraph graph;
+        try {
+            graph = loadBVGraphFromFile("graphs/uk-2014-host/uk-2014-host");
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
@@ -113,17 +134,18 @@ public class Graphs {
     }
 
     /**
-     * QUICK DIRTY TESTING
+     * This is how you generate a .offsets file for your downloaded graph.
      * 
      * @param args
      */
     public static void main(String[] args) {
         // You can generate the graphs offsets here
 
-        // generateOffsets("graphs/GRAPH_FOLDER/GRAPH_NAME");
-
-        ImmutableGraph graph = getHollywood2009Graph();
-        System.out.println(graph.numNodes());
+        try {
+            generateOffsets("graphs/uk-2014-host/uk-2014-host");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

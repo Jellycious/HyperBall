@@ -53,7 +53,7 @@ public class GraphAnalyzer
 
         HyperBall ball = new HyperBall(graph, NUMBER_OF_BITS_HYPERBALL);
 
-        System.out.printf("Analyzing graph: %s with HyperBall\n", resultsFolder);
+        System.out.printf("Analyzing graph: %s containing %d nodes with HyperBall\n", resultsFolder, graph.numNodes());
         long start = System.currentTimeMillis();
         DistanceDistribution dist = ball.getDistanceDistribution();
         long end = System.currentTimeMillis();
@@ -62,6 +62,35 @@ public class GraphAnalyzer
 
         String filePath = RESUTLS_DIRECTORY + resultsFolder + File.separator + FILE_NAME;
         saveDistanceDistributionAnalysis(dist, filePath);
+    }
+
+    /**
+     * Runs hyperball with a custom number of registers.
+     * @param graph graph to analyze.
+     * @param b number of bits to use for register indexing.
+     */
+    public static void analyzeGraphWithHyperball(BVGraph graph, int b)
+    {
+        int numberReg = (int) Math.pow(2, b);   // number of registers
+
+        String baseName = Graphs.getBasename(graph);
+        String resultsFolder = baseName + File.separator;
+
+        HyperBall ball = new HyperBall(graph, b);
+
+        System.out.printf("Analyzing graph: %s containing %d nodes with HyperBall using %d registers.\n", resultsFolder, graph.numNodes(), numberReg);
+        long start = System.currentTimeMillis();
+        DistanceDistribution dist = ball.getDistanceDistribution();
+        long end = System.currentTimeMillis();
+        System.out.printf("Analysis Done\nTime taken: %dms\n", end - start);
+        System.out.println("Saving results to disk\n");
+
+        final String FILE_NAME = HYPERBALL_KEY;
+        String filePath = RESUTLS_DIRECTORY + resultsFolder + File.separator + FILE_NAME + "-" + numberReg;
+
+        saveDistanceDistributionAnalysis(dist, filePath);
+        
+
     }
 
 
@@ -88,7 +117,7 @@ public class GraphAnalyzer
 
         BfsTraversal bfs = new BfsTraversal(graph);
 
-        System.out.printf("Analyzing graph: %s with Breadth First Traversal\n", resultsFolder);
+        System.out.printf("Analyzing graph: %s containing %d nodes with Breadth First Traversal\n", resultsFolder, graph.numNodes());
         long start = System.currentTimeMillis();
         DistanceDistribution dist = bfs.getDistanceDistribution();
         long end = System.currentTimeMillis();
@@ -134,6 +163,8 @@ public class GraphAnalyzer
     public static void main( String[] args )
     {
         BVGraph graph = Graphs.getHollywood2009Graph();
-        analyzeGraphWithHyperball(graph);
+        analyzeGraphWithBFS(graph);
+        
+
     }
 }

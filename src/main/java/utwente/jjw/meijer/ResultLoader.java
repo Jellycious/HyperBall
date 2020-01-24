@@ -72,7 +72,7 @@ public class ResultLoader {
 
     public static void main(String[] args)
     {
-        ResultLoader loader = new ResultLoader("completegraph-1000");
+        ResultLoader loader = new ResultLoader("wordassociation-2011");
 
         HashMap<String, DistanceDistribution> distMap;
         try {
