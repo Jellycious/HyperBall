@@ -160,8 +160,12 @@ public class ResultAnalyzer {
 
     public static void main(String[] args)
     {
-        ResultLoader loader = new ResultLoader("wordassociation-2011");
-        ResultAnalyzer analyzer = new ResultAnalyzer(loader);
-        analyzer.analyzeError("bfs", "hyperball-128");
+        ResultLoader dblpLoader = new ResultLoader("dblp-2010");
+        ResultAnalyzer dblp = new ResultAnalyzer(dblpLoader);
+        ResultLoader ukLoader = new ResultLoader("uk-2014-host");
+        ResultAnalyzer uk = new ResultAnalyzer(ukLoader);
+
+        dblp.printHyperBallResults();
+        uk.printHyperBallResults();
     }
 }

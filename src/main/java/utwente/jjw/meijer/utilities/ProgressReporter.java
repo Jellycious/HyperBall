@@ -11,6 +11,8 @@ public class ProgressReporter extends Thread {
     private final Progress toReport;
     private final int intervalSeconds;
 
+    private long start;
+
     public ProgressReporter(Progress toReport, int intervalSeconds){
         this.toReport = toReport;
         this.intervalSeconds = intervalSeconds;
@@ -24,9 +26,16 @@ public class ProgressReporter extends Thread {
     }
 
     public void run() {
+        this.start = System.currentTimeMillis();
         while (!done){
+            double progress = toReport.getProgress();
+            double diffMinutes = (double) (System.currentTimeMillis() - start) / (1000);    // seconds
+            diffMinutes = diffMinutes / 60;                                                 // minutes
+            double minutesToGo = (100 - progress) / progress;
+            minutesToGo = minutesToGo * diffMinutes;
 
-            toReport.printProgress();
+            System.out.printf("Progress: %.2f%%\texpected minutes to go: %.0f\n", progress, minutesToGo);
+
             if (reportMemory) Utilities.printMemoryUsage();
             
             try {

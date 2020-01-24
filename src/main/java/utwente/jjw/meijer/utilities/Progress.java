@@ -20,5 +20,9 @@ public class Progress {
     public void printProgress(){
         System.out.printf("Progress %10f\n", this.progress);
     }
+
+    public double getProgress(){
+        return this.progress;
+    }
 }
 

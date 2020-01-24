@@ -162,7 +162,7 @@ public class GraphAnalyzer
 
     public static void main( String[] args )
     {
-        BVGraph graph = Graphs.getHollywood2009Graph();
+        BVGraph graph = Graphs.getDPLB2010Graph();
         analyzeGraphWithBFS(graph);
         
 
