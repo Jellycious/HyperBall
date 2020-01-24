@@ -1,5 +1,5 @@
-# CODE
-All code can be found on [Github](https://github.com/Jellycious/HyperBall).
+# HyperBall
+This is university project for analyzing and implementing the HyperBall algorithm.
 
 ## Downloading Graphs
 Graphs can be downloaded from [WebGraph](http://webgraph.di.unimi.it/). 
@@ -10,3 +10,7 @@ An example of analyzing a graph can be found in GraphAnalyzer.java. It will auto
 
 ## Result Analyzer
 Some very basic analysis can be done on the .dd files. You can find an example of this in the ResultAnalyzer.java. For the results to be analyzed you first have to generate actual results using BFS or the HyperBall function. All results are stored in the DistanceDistribution class.
+
+### References:
+[Four degrees of seperation](https://arxiv.org/abs/1111.4570)
+[In-core computation of geometric centralities with HyperBall: A Hundred Billion Nodes and Beyond](https://arxiv.org/abs/1308.2144)
